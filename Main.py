@@ -13,6 +13,7 @@ def run_flask():
     app.run(host='0.0.0.0', port=port)
 
 threading.Thread(target=run_flask, daemon=True).start()
+import os
 import requests
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
