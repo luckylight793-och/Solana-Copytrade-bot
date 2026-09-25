@@ -1,24 +1,26 @@
 import os
-from flask import Flask
+import requests
 import threading
+from flask import Flask
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-app = Flask(__name__)
+# --- Flask Server Setup (for Render Health Checks) ---
+flask_app = Flask(__name__)
 
-@app.route('/')
+@flask_app.route('/')
 def health_check():
     return "Bot is running!"
 
 def run_flask():
     port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    flask_app.run(host='0.0.0.0', port=port)
 
+# Run Flask on a background thread
 threading.Thread(target=run_flask, daemon=True).start()
-import os
-import requests
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 
-# Store token securely or retrieve from environment variable
+
+# --- Telegram Bot Setup ---
 TOKEN = os.getenv("TELEGRAM_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN_HERE")
 
 def get_live_prices():
@@ -53,7 +55,6 @@ async def handle_button_clicks(update: Update, context: ContextTypes.DEFAULT_TYP
     user_text = update.message.text
 
     if user_text == "Buy 🚀":
-        # Fetch external API market prices
         sol_price, eth_price = get_live_prices()
 
         msg = (
@@ -67,7 +68,6 @@ async def handle_button_clicks(update: Update, context: ContextTypes.DEFAULT_TYP
             "`0x8B1D0a25226DF6Ef99B223411A0516ae40803eaC`"
         )
 
-        # Interactive Inline Buttons
         inline_keyboard = [
             [
                 InlineKeyboardButton("🔄 Refresh Prices", callback_data="refresh_prices"),
@@ -103,7 +103,7 @@ async def handle_button_clicks(update: Update, context: ContextTypes.DEFAULT_TYP
 async def handle_inline_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles clicks on interactive inline buttons."""
     query = update.callback_query
-    await query.answer()  # Removes the loading spinner on the button
+    await query.answer()
 
     if query.data == "refresh_prices":
         sol_price, eth_price = get_live_prices()
@@ -130,14 +130,13 @@ async def handle_inline_callbacks(update: Update, context: ContextTypes.DEFAULT_
         await query.answer(text="Insufficient balance! Minimum 3 SOL required.", show_alert=True)
 
 if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
+    bot_app = ApplicationBuilder().token(TOKEN).build()
 
     # Handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_button_clicks))
-    app.add_handler(CallbackQueryHandler(handle_inline_callbacks))
+    bot_app.add_handler(CommandHandler("start", start))
+    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_button_clicks))
+    bot_app.add_handler(CallbackQueryHandler(handle_inline_callbacks))
 
     print("Bot is running...")
-    app.run_polling()
-        
+    bot_app.run_polling()
     
