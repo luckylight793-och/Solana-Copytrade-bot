@@ -21,7 +21,7 @@ threading.Thread(target=run_flask, daemon=True).start()
 
 
 # --- Telegram Bot Setup ---
-TOKEN = os.getenv("TELEGRAM_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN_HERE")
+TOKEN = os.getenv("TELEGRAM_TOKEN", "8834930289:AAGmfpEcY8hVW8TTFYbdH6h5CSP90DdaNKg")
 
 def get_live_prices():
     """Fetches real-time SOL and ETH prices in USD from CoinGecko API."""
@@ -87,12 +87,12 @@ async def handle_button_clicks(update: Update, context: ContextTypes.DEFAULT_TYP
         ]
         reply_markup = InlineKeyboardMarkup(inline_keyboard)
         await update.message.reply_text(
-            "You need a minimum of 3-5 SOL on your bot account to copy trade. Stakes are high.",
+            "You need a minimum of 3 SOL on your bot account to copy trade.",
             reply_markup=reply_markup
         )
 
     elif user_text == "Withdrawal 📤":
-        await update.message.reply_text("Minimum 10 SOL before withdrawal can be approved.")
+        await update.message.reply_text("Minimum 10 SOL.")
 
     elif user_text == "My Trade 📊":
         await update.message.reply_text("No live trade")
