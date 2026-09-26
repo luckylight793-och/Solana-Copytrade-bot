@@ -18,6 +18,7 @@ def run_flask():
 
 # Run Flask on a background thread
 threading.Thread(target=run_flask, daemon=True).start()
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 
 # --- Telegram Bot Setup ---
