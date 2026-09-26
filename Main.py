@@ -18,11 +18,11 @@ def run_flask():
 
 # Run Flask on a background thread
 threading.Thread(target=run_flask, daemon=True).start()
-TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 
 # --- Telegram Bot Setup ---
-TOKEN = os.getenv("TELEGRAM_TOKEN", "8834930289:AAGmfpEcY8hVW8TTFYbdH6h5CSP90DdaNKg")
+# Set TELEGRAM_TOKEN inside your Render Environment Variables
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 def get_live_prices():
     """Fetches real-time SOL and ETH prices in USD from CoinGecko API."""
@@ -131,6 +131,9 @@ async def handle_inline_callbacks(update: Update, context: ContextTypes.DEFAULT_
         await query.answer(text="Insufficient balance! Minimum 3 SOL required.", show_alert=True)
 
 if __name__ == "__main__":
+    if not TOKEN:
+        raise ValueError("TELEGRAM_TOKEN environment variable is not set!")
+
     bot_app = ApplicationBuilder().token(TOKEN).build()
 
     # Handlers
@@ -140,4 +143,3 @@ if __name__ == "__main__":
 
     print("Bot is running...")
     bot_app.run_polling()
-    
